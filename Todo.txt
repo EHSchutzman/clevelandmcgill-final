@@ -1,0 +1,32 @@
+Need to make build the experiment
+  Making the graphs
+  linking to firebase
+
+  In experiment
+    Collect:
+        Type of chart
+        user_answer
+        actual_answer
+  Make a demographic form -- gender, age, country
+
+  Build charts
+
+
+5 -- BAR
+10
+15 - PIE
+20
+25 - PIE
+33
+35 - BAR
+40
+45
+50 - BAR
+55
+60 - PIE
+66 - BAR
+75
+80 - PIE
+85 - BAR
+90
+95 - PIE
