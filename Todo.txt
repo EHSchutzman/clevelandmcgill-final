@@ -11,22 +11,9 @@ Need to make build the experiment
 
   Build charts
 
-
-5 -- BAR
-10
-15 - PIE
-20
-25 - PIE
-33
-35 - BAR
-40
-45
-50 - BAR
-55
-60 - PIE
-66 - BAR
-75
-80 - PIE
-85 - BAR
-90
-95 - PIE
+  PCT OF LARGER — Smaller=red larger=blue
+  5
+  25
+  50
+  66
+  85
