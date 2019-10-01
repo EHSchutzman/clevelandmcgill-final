@@ -86,24 +86,26 @@ if (cluster.isMaster) {
 /** FORM SUBMISSION AND STORAGE TO FIREBASE DATABASE **/
 var ref = db.ref("Session");
 
-var formId = uuidv4();
-var nameToSend = $('#name').val();
-var ageToSend = $('#age').val();
-var genderToSend = $("input[name='gender']:checked").val();
-var countryToSend = $('#country').val();
-var animalToSend = $("input[name='animal']:checked").val();
+$('#personal').submit(function(event) {
+  var formId = uuidv4();
+  var nameToSend = $('#name').val();
+  var ageToSend = $('#age').val();
+  var genderToSend = $("input[name='gender']:checked").val();
+  var countryToSend = $('#country').val();
+  var animalToSend = $("input[name='animal']:checked").val();
 
-var formData = {
-  formId: {
-    "name": nameToSend,
-    "age": ageToSend,
-    "gender": genderToSend,
-    "country": countryToSend,
-    "animal": animalToSend
+  var formData = {
+    formId: {
+      "name": nameToSend,
+      "age": ageToSend,
+      "gender": genderToSend,
+      "country": countryToSend,
+      "animal": animalToSend
+    }
   }
-}
 
-ref.set(formData);
+  ref.set(formData);
+});
 
 function uuidv4() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
