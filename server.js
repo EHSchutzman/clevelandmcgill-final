@@ -3,7 +3,6 @@ const path = require('path');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 var admin = require('firebase-admin');
-var serviceAccount = require("../clevelandmcgill-c116c-firebase.json");
 var fs = require('fs')
 admin.initializeApp({
   credential: admin.credential.cert({
