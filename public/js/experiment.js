@@ -13,7 +13,7 @@ function start_experiment(){
             <form action="" id="personal">
                 Name (Optional): <input type="text" id="name" name="name"></br>
                 Age: <input type="text" id="age" name="age"></br>
-                Gender: 
+                Gender:
                 <label for="male">Male</label> <input type="radio" name="gender" id="gender" value="male">
                 <label for="female">Female</label> <input type="radio" name="gender" id="gender" value="female">
                 <label for="other">Prefer not to tell</label> <input type="radio" name="gender" id="gender" value="other"><br>
@@ -34,7 +34,7 @@ function start_experiment(){
         var genderToSend = $("input[name='gender']:checked").val();
         var countryToSend = $('#country').val();
         var animalToSend = $("input[name='animal']:checked").val();
-      
+
         var formData = {
             "session_id": formId,
             "name": nameToSend,
@@ -50,7 +50,7 @@ function start_experiment(){
         http.onreadystatechange = send_session_id
         http.open("POST", "/sendSessionInfo")
         http.send(localStorage.getItem("SessionInfo"))
-        
+
     }
 
     function send_session_id(){
@@ -96,7 +96,7 @@ function start_experiment(){
 				<input onClick="answerGraph()" type="submit" value="Submit">
 
 		</div>`
-        
+
         imageNames.splice(num, 1)
         if(imageNames.length == 0){
             endExperiment()
@@ -119,7 +119,7 @@ function start_experiment(){
         http.open("POST", "/sendAnswer")
         http.send(JSON.stringify(answer))
     }
-    
+
     function sendGraphAnswer(){
         if(this.readyState == 4 && this.status == 200 ){
             console.log('werwe')
@@ -130,7 +130,8 @@ function start_experiment(){
     function endExperiment(){
         var experiment_div = document.getElementById('center_content')
         experiment_div.innerHTML = `<h1>THANK YOU</h1>`
+        window.location = "https://app.prolific.co/submissions/complete?cc=149251AA";
     }
-    function randomIntFromInterval(min, max) { // min and max included 
+    function randomIntFromInterval(min, max) { // min and max included
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
