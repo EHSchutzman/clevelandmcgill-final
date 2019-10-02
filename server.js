@@ -63,7 +63,7 @@ Retrieving Data from the database:
     All documentation for the use of the firebase admin api is located at:
 
     https://firebase.google.com/docs/database/admin/start
-    
+
 */
 
 if (cluster.isMaster) {
@@ -89,7 +89,7 @@ if (cluster.isMaster) {
   app.get('/getImageNames', function(req, res){
     fs.readdir("public/img", function(err, items) {
       res.send(JSON.stringify(items));
-   
+
     });
 
   })
@@ -97,7 +97,7 @@ if (cluster.isMaster) {
   app.post("/sendAnswer", function(req, res){
     getReq(req).then(body =>{
       //send info to /trials/sessionid/trial
-      var str = "Trials/" + body.session_id.toString() + "/" + body.image_name.toString()
+      var str = "Trials/" + body.image_name.toString() + "/"  + body.session_id.toString()
       var ref = db.ref(str)
       ref.set(body)
       res.sendStatus(200)
