@@ -11,12 +11,8 @@ function start_experiment(){
         </div>
         <div id="questionnaire">
             <form action="" id="personal">
-                Name (Optional): <input type="text" id="name" name="name"></br>
-                Age: <input type="text" id="age" name="age"></br>
-                Gender:
-                <label for="male">Male</label> <input type="radio" name="gender" id="gender" value="male">
-                <label for="female">Female</label> <input type="radio" name="gender" id="gender" value="female">
-                <label for="other">Prefer not to tell</label> <input type="radio" name="gender" id="gender" value="other"><br>
+                Prolific Id: <input type="text" id="name" name="name"></br>
+                Age (Optional): <input type="text" id="age" name="age"></br>
                 Country: <input type="text" id="country" name="country"></br>
                 Cat or Dog?
                 <label for="cat">Cat</label> <input type="radio" name="animal" id="animal" value="dog">
@@ -37,9 +33,8 @@ function start_experiment(){
 
         var formData = {
             "session_id": formId,
-            "name": nameToSend,
+            "prolific_id": nameToSend,
             "age": ageToSend,
-            "gender": genderToSend,
             "country": countryToSend,
             "animal": animalToSend
           }
