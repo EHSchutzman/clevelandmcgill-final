@@ -97,7 +97,7 @@ if (cluster.isMaster) {
   app.post("/sendAnswer", function(req, res){
     getReq(req).then(body =>{
       //send info to /trials/sessionid/trial
-      var str = "Trials/" + body.image_name.toString() + "/"  + body.session_id.toString()
+      var str = "Trial/" + body.image_name.toString() + "/"  + body.session_id.toString()
       var ref = db.ref(str)
       ref.set(body)
       res.sendStatus(200)
