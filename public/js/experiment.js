@@ -7,16 +7,11 @@ function start_experiment(){
     console.log(experiment_div)
     experiment_div.style.backgroundColor = "white"
     experiment_div.innerHTML = `<div id="title">
-    <h1>Please enter your information:</h1>
+    <h1>Please Enter Your Prolific Id:</h1>
         </div>
         <div id="questionnaire">
             <form action="" id="personal">
                 Prolific Id: <input type="text" id="name" name="name"></br>
-                Age (Optional): <input type="text" id="age" name="age"></br>
-                Country: <input type="text" id="country" name="country"></br>
-                Cat or Dog?
-                <label for="cat">Cat</label> <input type="radio" name="animal" id="animal" value="dog">
-                <label for="dog">Dog</label> <input type="radio" name="animal" id="animal" value="cat"><br>
             </form>
             <input onClick="submitDemographics()" type="submit" value="Submit">
 
@@ -24,19 +19,12 @@ function start_experiment(){
     }
 
     function submitDemographics(){
+
         var formId = uuidv4();
         var nameToSend = $('#name').val();
-        var ageToSend = $('#age').val();
-        var genderToSend = $("input[name='gender']:checked").val();
-        var countryToSend = $('#country').val();
-        var animalToSend = $("input[name='animal']:checked").val();
-
         var formData = {
             "session_id": formId,
             "prolific_id": nameToSend,
-            "age": ageToSend,
-            "country": countryToSend,
-            "animal": animalToSend
           }
         localStorage.setItem("SessionInfo", JSON.stringify(formData))
         console.log(formData)
@@ -50,7 +38,10 @@ function start_experiment(){
 
     function send_session_id(){
         if(this.readyState == 4 && this.status == 200 ){
-            beginExperiment()
+            var experiment_div = document.getElementById('center_content')
+            experiment_div.innerHTML = "Loading image"
+            setTimeout(beginExperiment, 3000)
+            // beginExperiment()
         }
     }
 
@@ -62,8 +53,9 @@ function start_experiment(){
       }
 
     function beginExperiment(){
-        var experiment_div = document.getElementById('center_content')
-        console.log("here")
+
+
+        setTimeout(function(){;}, 3000)
         var http = new XMLHttpRequest()
         http.onreadystatechange = getImageNames
         http.open("GET", "/getImageNames")
@@ -80,10 +72,17 @@ function start_experiment(){
     }
 
     function advanceExperiment(){
+
         var imageNames = JSON.parse(localStorage.getItem("imageNames"))
+        if(imageNames.length == 0){
+            endExperiment()
+        }
+        console.log(imageNames)
         var num = randomIntFromInterval(0, imageNames.length - 1)
         var experiment_div = document.getElementById('center_content')
         experiment_div.style.backgroundColor = "white"
+        var img_time = imageNames[num].split("_")[0]
+
         experiment_div.innerHTML = `<img id="experiment_image" src="`  + "/img/" + imageNames[num]+`  ">
 		<div>
 
@@ -91,11 +90,10 @@ function start_experiment(){
 				<input onClick="answerGraph()" type="submit" value="Submit">
 
 		</div>`
+        setTimeout(()=> {document.getElementById("experiment_image").style.visibility = "hidden"}, Number(img_time))
 
         imageNames.splice(num, 1)
-        if(imageNames.length == 0){
-            endExperiment()
-        }
+        console.log(imageNames)
         localStorage.setItem('imageNames', JSON.stringify(imageNames))
 
     }
@@ -118,14 +116,17 @@ function start_experiment(){
     function sendGraphAnswer(){
         if(this.readyState == 4 && this.status == 200 ){
             console.log('werwe')
-            advanceExperiment()
+            var experiment_div = document.getElementById('center_content')
+            experiment_div.innerHTML = "Loading next image in 3 seconds"
+            setTimeout(advanceExperiment, 3000)
+
         }
     }
 
     function endExperiment(){
         var experiment_div = document.getElementById('center_content')
         experiment_div.innerHTML = `<h1>THANK YOU</h1>`
-        window.location = "https://app.prolific.co/submissions/complete?cc=149251AA";
+        // window.location = "https://app.prolific.co/submissions/complete?cc=149251AA";
     }
     function randomIntFromInterval(min, max) { // min and max included
         return Math.floor(Math.random() * (max - min + 1) + min);
