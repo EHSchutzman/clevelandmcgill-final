@@ -3,8 +3,6 @@ var images = new Array()
 function start_experiment(){
 
     var experiment_div = document.getElementById('center_content')
-    console.log("found experiment div")
-    console.log(experiment_div)
     experiment_div.style.backgroundColor = "white"
     experiment_div.innerHTML = `<div id="title">
     <h1>Please Enter Your Prolific Id:</h1>
@@ -27,7 +25,7 @@ function start_experiment(){
             "prolific_id": nameToSend,
           }
         localStorage.setItem("SessionInfo", JSON.stringify(formData))
-        console.log(formData)
+
 
         var http = new XMLHttpRequest()
         http.onreadystatechange = send_session_id
@@ -77,7 +75,6 @@ function start_experiment(){
         if(imageNames.length == 0){
             endExperiment()
         }
-        console.log(imageNames)
         var num = randomIntFromInterval(0, imageNames.length - 1)
         var experiment_div = document.getElementById('center_content')
         experiment_div.style.backgroundColor = "white"
@@ -93,7 +90,6 @@ function start_experiment(){
         setTimeout(()=> {document.getElementById("experiment_image").style.visibility = "hidden"}, Number(img_time))
 
         imageNames.splice(num, 1)
-        console.log(imageNames)
         localStorage.setItem('imageNames', JSON.stringify(imageNames))
 
     }
@@ -115,7 +111,7 @@ function start_experiment(){
 
     function sendGraphAnswer(){
         if(this.readyState == 4 && this.status == 200 ){
-            console.log('werwe')
+
             var experiment_div = document.getElementById('center_content')
             experiment_div.innerHTML = "Loading next image in 3 seconds"
             setTimeout(advanceExperiment, 3000)
