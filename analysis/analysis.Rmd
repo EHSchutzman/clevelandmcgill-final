@@ -146,7 +146,7 @@ trials %>%
   stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
   coord_flip() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Aggregated error rates by chart type")
+  ggtitle("Aggregated error rates by time interval")
   
 ```
 
@@ -157,7 +157,7 @@ trials %>%
   stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
   coord_flip() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Aggregated error rates by chart type")
+  ggtitle("Aggregated error rates by chart type and time interval")
 ```
 As expected, error rates on pie charts are higher than the error rates on bar charts
 
