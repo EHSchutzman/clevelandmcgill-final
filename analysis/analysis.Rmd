@@ -1,0 +1,246 @@
+---
+title: "The Effect of Time"
+author: "Ethan Schutzman"
+date: "December 09, 2019"
+output: pdf_document
+---
+
+Analysis of data collected from a Cleveland & McGill style study investigating the effects of time.
+
+References:  
+ - https://github.com/mjskay/tidybayes  
+ - @codementum  
+
+## Libraries needed
+```{r echo = TRUE, message=FALSE}
+library("jsonlite")
+library(RCurl)
+library(plyr)
+library(tidyverse)
+library(uuid)
+```
+
+## Grab the JSON file from firebase and convert into a list in R
+```{r}
+tables <- fromJSON("https://clevelandmcgill-final.firebaseio.com/.json")
+```
+
+## Create the `sessions` tibble
+```{r}
+
+sessions <- tibble()
+for (session in tables$Session) {
+  new_row <- as_tibble(session)
+  sessions <- sessions %>% bind_rows(new_row)
+}
+ 
+```
+
+## Create the `trials` tibble
+```{r}
+#tables$Trial
+trials = tibble()
+for (img_name in tables$Trial) {
+  #img_name
+  for (observation in img_name) {
+      new_row <- as_tibble(observation)
+      trials <- trials %>% bind_rows(new_row)
+    # trials <- rbind(trials_df, data.frame(observation))
+  }
+}
+#Filter incomplete trials to not skew data.
+ trials <- trials %>%
+  filter(session_id != "c071ee29-5210-498b-9af4-3f361a9a68ba" & session_id != "98f79c48-4803-4300-8c92-8c51d5c0c20c" & session_id != "1a98794c-1fff-40d4-9ddf-ff42f8218906" & session_id != "174ac2ef-bc7e-4f08-9185-fb1c99eb6ffc")
+```
+
+## Clean the data to make later function calls easier
+
+### Create `condition` column from `image_name` (to easily filter by condition)
+```{r}
+trials$condition <- NA
+for (i in seq_along(trials$image_name)) {
+  if (length(grep("B", trials$image_name[i])) > 0)
+    condition <- 'Bar'
+  else if (length(grep("P", trials$image_name[i])) > 0)
+    condition <- 'Pie'
+  else
+    condition <- '???'
+  
+  trials$condition[i] <- condition
+}
+```
+
+```{r}
+trials$time <- NA
+for (i in seq_along(trials$image_name)) {
+  if (length(grep("1000", trials$image_name[i])) > 0)
+    time <- 'One Second'
+  else if (length(grep("0500", trials$image_name[i])) > 0)
+    time <- 'Half Second'
+  else if (length(grep("3000", trials$image_name[i])) > 0)
+    time <- 'Three Seconds'
+  else
+    time <- "???"
+  
+  trials$time[i] <- time
+}
+```
+
+
+```{r}
+trials$time_chart <- NA
+for (i in seq_along(trials$image_name)) {
+  if(length(grep("B", trials$image_name[i]) > 0)){
+    if (length(grep("1000", trials$image_name[i])) > 0)
+      time_chart <- 'One Second Bar'
+    else if (length(grep("0500", trials$image_name[i])) > 0)
+      time_chart <- 'Half Second Bar'
+    else if (length(grep("3000", trials$image_name[i])) > 0)
+      time_chart <- 'Three Seconds Bar'
+    else
+      time_chart <- "Unknown Bar"
+  }else{
+    if (length(grep("1000", trials$image_name[i])) > 0)
+      time_chart <- 'One Second Pie'
+    else if (length(grep("0500", trials$image_name[i])) > 0)
+      time_chart <- 'Half Second Pie'
+    else if (length(grep("3000", trials$image_name[i])) > 0)
+      time_chart <- 'Three Seconds Pie'
+    else
+      time_chart <- "Unknown Pie"
+  }
+  trials$time_chart[i] <- time_chart
+}
+```
+
+### Create column for the log_2 error rate (as described in the paper by Cleveland and McGill)
+```{r}
+trials$log2_error <- log(abs(strtoi(trials$actual_answer) - strtoi(trials$expected_answer)) + 0.125, base = 2)
+```
+
+### Create `participant` column from `session_id` (to make the facet plot tidier)
+```{r}
+trials$participant <- factor(
+  trials$session_id, levels=unique(trials$session_id), labels = seq_along(unique(trials$session_id))
+)
+
+trials %>% filter(participant == 45)
+```
+
+# Comparing aggregate error rates for bar and pie charts
+```{r}
+trials %>%
+  ggplot(aes(x = condition, y = log2_error)) +
+  geom_point(alpha = 0.5) +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red", size = .50, alpha=1) +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Aggregated error rates by chart type")
+```
+
+```{r}
+trials %>%
+  ggplot(aes(x = time, y = log2_error)) +
+  geom_point(alpha = 0.5) +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Aggregated error rates by chart type")
+```
+
+```{r}
+trials %>%
+  ggplot(aes(x = time_chart, y = log2_error)) +
+  geom_point(alpha = 0.5) +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Aggregated error rates by chart type")
+```
+As expected, error rates on pie charts are higher than the error rates on bar charts
+
+# Comparing individual participant error rates by chart type
+```{r}
+trials %>%
+  ggplot(aes(x = time, y = log2_error)) +
+  geom_point(alpha = 0.5) +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red", size = .3, alpha=0.5) +
+  facet_wrap(~ participant) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Individual error rates by chart type")
+   theme(panel.spacing = unit(2, "lines"))
+
+ggsave('barvpie_byparticipant.pdf', units="in", width=8, height=11)
+```
+We still see the same trend of higher error rates on pie charts (with a couple of outliers)
+
+# Statistical Analysis
+
+## Normality test of the bar and pie responses 
+```{r}
+pie <- trials %>% 
+  filter(condition == "Pie")
+bar <- trials %>%
+  filter(condition == "Bar")
+
+bar_time_half <- trials %>%
+  filter(time_chart == "Half Second Bar")
+bar_time_one <- trials %>%
+  filter(time_chart == "One Second Bar")
+bar_time_three <- trials %>%
+  filter(time_chart == "Three Seconds Bar")
+
+pie_time_half <- trials %>%
+  filter(time_chart == 'Half Second Pie')
+pie_time_one <- trials %>%
+  filter(time_chart == "One Second Pie")
+pie_time_three <- trials %>%
+  filter(time_chart == "Three Seconds Pie")
+
+```
+
+```{r}
+shapiro.test(bar$log2_error)
+shapiro.test(pie$log2_error)
+shapiro.test(pie_time_half$log2_error)
+shapiro.test(pie_time_one$log2_error)
+shapiro.test(pie_time_three$log2_error)
+shapiro.test(bar_time_half$log2_error)
+shapiro.test(bar_time_one$log2_error)
+shapiro.test(bar_time_three$log2_error)
+```
+
+## Density plots - validating normality test
+
+Our normality test indicates that the error rates for the bar and pie charts are not normally distributed. We validate this by creating density plots by chart type, with the mean value of each group also indicated.
+```{r}
+mu <- ddply(trials, "condition", summarise, grp.mean=mean(log2_error))
+
+trials %>%
+  ggplot(aes(x=log2_error, color=condition)) +
+  geom_density() +
+  geom_vline(data=mu, aes(xintercept=grp.mean, color=condition),
+             linetype="dashed")
+```
+```{r}
+mu2 <- ddply(trials, "time", summarise, grp.mean=mean(log2_error))
+
+trials %>%
+  ggplot(aes(x=log2_error, color=time)) +
+  geom_density() +
+  geom_vline(data=mu2, aes(xintercept=grp.mean, color=time),
+             linetype="dashed")
+```
+
+## Wilcoxon rank sum test
+Our test for normality came out negative therefore we perform the Wilcoxon rank sum test.
+```{r}
+wilcox.test(bar_time_half$log2_error, bar_time_one$log2_error)
+wilcox.test(bar_time_half$log2_error, bar_time_three$log2_error)
+wilcox.test(bar_time_one$log2_error, bar_time_three$log2_error)
+wilcox.test(pie_time_half$log2_error, pie_time_one$log2_error)
+wilcox.test(pie_time_half$log2_error, pie_time_three$log2_error)
+wilcox.test(pie_time_one$log2_error, pie_time_three$log2_error)
+wilcox.test(pie_time_half$log2_error, bar_time_half$log2_error)
+
+```
