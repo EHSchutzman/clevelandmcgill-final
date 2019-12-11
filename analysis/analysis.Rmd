@@ -23,6 +23,7 @@ library(uuid)
 ## Grab the JSON file from firebase and convert into a list in R
 ```{r}
 tables <- fromJSON("https://clevelandmcgill-final.firebaseio.com/.json")
+options(warn = -1)
 ```
 
 ## Create the `sessions` tibble
@@ -145,7 +146,8 @@ trials %>%
   stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
   coord_flip() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Aggregated error rates by chart type")
+  ggtitle("Aggregated error rates by time interval")
+  
 ```
 
 ```{r}
@@ -155,7 +157,7 @@ trials %>%
   stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 1.0, alpha=0.5) +
   coord_flip() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Aggregated error rates by chart type")
+  ggtitle("Aggregated error rates by chart type and time interval")
 ```
 As expected, error rates on pie charts are higher than the error rates on bar charts
 
@@ -177,6 +179,7 @@ We still see the same trend of higher error rates on pie charts (with a couple o
 # Statistical Analysis
 
 ## Normality test of the bar and pie responses 
+### Creating conditional columns of data
 ```{r}
 pie <- trials %>% 
   filter(condition == "Pie")
@@ -199,6 +202,7 @@ pie_time_three <- trials %>%
 
 ```
 
+##Shapiro Tests of all variables
 ```{r}
 shapiro.test(bar$log2_error)
 shapiro.test(pie$log2_error)
